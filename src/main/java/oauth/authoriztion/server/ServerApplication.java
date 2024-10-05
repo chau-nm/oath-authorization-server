@@ -1,4 +1,4 @@
-package oauth.authorization.server;
+package oauth.authoriztion.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
