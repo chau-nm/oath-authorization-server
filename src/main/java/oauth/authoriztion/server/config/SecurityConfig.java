@@ -50,6 +50,7 @@ public class SecurityConfig {
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
 			.oidc(Customizer.withDefaults());
         http
+            .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
             .exceptionHandling((exceptions) -> exceptions
                 .defaultAuthenticationEntryPointFor(
                     new LoginUrlAuthenticationEntryPoint("/login"),
@@ -79,17 +80,6 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    // @Bean
-    // public AuthenticationManager authenticationManager(
-    //     UserDetailsService userDetailsService,
-	// 	PasswordEncoder passwordEncoder
-    // ) {
-    //     DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-    //     authenticationProvider.setUserDetailsService(userDetailsService);
-    //     authenticationProvider.setPasswordEncoder(passwordEncoder);
-    //     return new ProviderManager(authenticationProvider);
-    // }
-
     @Bean
 	public UserDetailsService userDetailsService() {
 		UserDetails userDetails = User.builder()
@@ -108,21 +98,14 @@ public class SecurityConfig {
             .clientSecret("{noop}secret")
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
             .redirectUri("http://127.0.0.1:8082/login/oauth2/code/demo-client")
+            .scope(OidcScopes.PROFILE)
             .scope(OidcScopes.OPENID)
             .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
             .build();
 
         return new InMemoryRegisteredClientRepository(oidcClient);
 	}
-
-
-    // @Bean
-    // public PasswordEncoder passwordEncoder() {
-    //     return new BCryptPasswordEncoder();
-    // }    
 
     @Bean 
 	public JWKSource<SecurityContext> jwkSource() {
