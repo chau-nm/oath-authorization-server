@@ -2,6 +2,7 @@ package oauth.authoriztion.server.config;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
@@ -105,20 +106,16 @@ public class SecurityConfig {
 		RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
             .clientId("demo-app")
             .clientSecret("{noop}secret")
-            .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
-            // .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+            .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
             .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
             .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-            .redirectUri("http://localhost:8080/login/oauth2/code/oidc-client")
-            .postLogoutRedirectUri("http://localhost:8080/")
+            .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+            .redirectUri("http://127.0.0.1:8082/login/oauth2/code/demo-client")
             .scope(OidcScopes.OPENID)
-            .scope(OidcScopes.PROFILE)
             .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
             .build();
 
-		return new InMemoryRegisteredClientRepository(oidcClient);
+        return new InMemoryRegisteredClientRepository(oidcClient);
 	}
 
 
@@ -147,7 +144,7 @@ public class SecurityConfig {
 			keyPairGenerator.initialize(2048);
 			keyPair = keyPairGenerator.generateKeyPair();
 		}
-		catch (Exception ex) {
+		catch (NoSuchAlgorithmException ex) {
 			throw new IllegalStateException(ex);
 		}
 		return keyPair;
@@ -160,6 +157,9 @@ public class SecurityConfig {
 
     @Bean 
 	public AuthorizationServerSettings authorizationServerSettings() {
-		return AuthorizationServerSettings.builder().issuer("http://localhost:8080").build();
+		return AuthorizationServerSettings
+            .builder()
+            .issuer("http://localhost:8080")
+            .build();
 	}
 }
